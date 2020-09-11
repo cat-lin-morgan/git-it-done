@@ -3,6 +3,7 @@ var userFormEl = document.querySelector("#user-form");
 var nameInputEl = document.querySelector("#username");
 var repoContainerEl = document.querySelector("#repos-container");
 var repoSearchTerm = document.querySelector("#repo-search-term");
+var languageButtonsEl = document.querySelector("#language-buttons")
 
 //getting the user's repos 
 var getUserRepos = function (user) {
@@ -17,7 +18,7 @@ var getUserRepos = function (user) {
                 });
             } else {
                 alert("Error User " + response.statusText);
-            }   
+            }
         })
         .catch(function(error){
             //this is technically chained to the end of the fetch function
@@ -63,6 +64,19 @@ var displayRepos = function(repos, searchTerm) {
     }
 }
 
+var getFeaturedRepos = function(language) {
+    var apiUrl = "https://api.github.com/search/repositories?q=" + language + "+is:featured&sort=help-wanted-issues";
+    fetch(apiUrl).then(function(response) {
+        if (response.ok) {
+            response.json().then(function(data){
+                displayRepos(data.items, language);
+            });
+        } else {
+            alert("Error:" + response.statusText)
+        }
+    });
+};
+
 //getiing the value of the input and wating for the event submit button
 var formSubmitHandler = function(event) {
     event.preventDefault();//get value from element
@@ -75,7 +89,19 @@ var formSubmitHandler = function(event) {
     }
 }
 
+//handles click of language buttons
+var buttonClickHandler = function (event) {
+    var language = event.target.getAttribute("data-language");
+    if (language) {
+        getFeaturedRepos(language);
+        //clear old content
+        repoContainerEl.textContent = "";
+    }
+}
+
+//event listeners
 userFormEl.addEventListener("submit", formSubmitHandler);
+languageButtonsEl.addEventListener("click", buttonClickHandler);
 
 //josh demo
 // var doIt = function( doFunc ){
